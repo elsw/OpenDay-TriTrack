@@ -3,8 +3,8 @@ import time
 import pigpio
 
 class TCPSend:
-    def __init__(self):
-        self.pi = pigpio.pi('localhost')
+    def __init__(self,pi):
+        self.pi = pi
         self.TCP_IP = '10.0.0.1'
         self.TCP_PORT = 5005
         self.BUFFERSIZE = 1024
@@ -30,5 +30,5 @@ class TCPSend:
 
 
 if __name__ == "__main__":
-    t = TCPSend()
+    t = TCPSend(pigpio.pi('localhost'))
     t.test()
