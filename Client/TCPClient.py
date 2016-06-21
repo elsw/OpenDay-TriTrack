@@ -13,7 +13,20 @@ class TCPSend:
 
         self.socket = socket.socket(socket.AF_INET,socket.SOCK_STREAM)
         
-
+    def sendData(self,addr,number):
+        try:
+            self.socket.send("A")
+            self.socket.send(addr)
+            self.socket.send(number)
+        except:
+            print "connecting"
+            try:
+                self.socket.connect((self.TCP_IP, self.TCP_PORT))
+                ##connected enable LED
+                self.pi.write(self.LED_PIN,1)
+            except:
+                #cant connect, host down? disable LED
+                self.pi.write(self.LED_PIN,0)
 
     def test(self):
         self.socket.connect((self.TCP_IP, self.TCP_PORT))
@@ -25,7 +38,7 @@ class TCPSend:
         self.pi.write(self.LED_PIN,0)
 
         print "done"
-
+    
 
 
 

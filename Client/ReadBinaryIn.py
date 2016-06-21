@@ -1,6 +1,8 @@
 import pigpio
+from TCPClient import TCPSend
 
 pi = pigpio.pi('localhost')
+TCPSend = TCPSend(pi)
 
 numberPins = [21,20,26,16,19,13,12,6,5,7]
 addressPins = [8,11,25,9]
@@ -23,7 +25,8 @@ while True:
             
         if pi.read(validPin):
             values[address] = number
-
+            TCPSend.sendData(address,number)
+        
         if address == 7:
             print values[address]
 
