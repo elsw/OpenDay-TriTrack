@@ -60,13 +60,11 @@ class MoveDriver:
         pwmX = self.twistArmRange[0] + (x*float(self.twistArmRange[1] - self.twistArmRange[0]))
         self.pwm.setPWM(self.twistPin, 0,int(pwmX))
         #wrist
-        #print self.data[self.wristAddress]
         num = self.__clamp(self.data[self.wristAddress],self.wristInRange[0],self.wristInRange[1])
         x = float(num - self.wristInRange[0])/float(self.wristInRange[1] - self.wristInRange[0])
         x = -x + 1 # invert scale
         pwmX = self.wristArmRange[0] + (x*float(self.wristArmRange[1] - self.wristArmRange[0]))
         self.pwm.setPWM(self.wristPin, 0,int(pwmX))
-        print pwmX
         #elbow
         num = self.__clamp(self.data[self.elbowAddress],self.elbowInRange[0],self.elbowInRange[1])
         x = float(num - self.elbowInRange[0])/float(self.elbowInRange[1] - self.elbowInRange[0])
