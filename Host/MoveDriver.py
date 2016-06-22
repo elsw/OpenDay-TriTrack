@@ -13,20 +13,25 @@ class MoveDriver:
         self.data = [0,0,0,0,0,0,0,0]
 
         self.basePin = 3
-        self.baseInRange = [0,1024]
+        self.baseAddress = 7
+        self.baseInRange = [37,540]
         self.baseArmRange = [150,570]
         self.shoulderPin = 4
-        self.sholderInRange = [0,1024]
+        self.shoulderAddress = 6
+        self.shoulderInRange = [0,575]
         self.shoulderArmRange = [190,600]
         self.elbowPin = 5
-        self.elbowInRange = [0,1024]
-        self.elboxArmRange = [360,700]
+        self.elbowAddress = 5
+        self.elbowInRange = [5,370]
+        self.elbowArmRange = [360,650]
         self.wristPin = 7
-        self.wristInRange = [0,1024]
-        self.wristArmRange = [150,700]
+        self.wristAddress = 4
+        self.wristInRange = [0,800]
+        self.wristArmRange = [100,700]
         self.twistPin = 6
-        self.twistInRange = [0,1024]
-        self.twistArmRange = [50,700]
+        self.twistAddress = 3
+        self.twistInRange = [475,1024]
+        self.twistArmRange = [81,514]
         self.grabPin = 8
         self.grabAddress = 2
         self.grabInRange = [813,1024]
@@ -34,13 +39,12 @@ class MoveDriver:
 
     def addData(self,address,number):
         self.data[address] = number
-        print address
         if address == 7:
             self.endOfAddr = True
         elif address == 2:
             if self.endOfAddr == True:
                 self.endOfAddr = False
-                #update servos
+                #update servos after every full cycle
                 self.__updateServos()
 
     def __updateServos(self):
@@ -50,7 +54,36 @@ class MoveDriver:
         x = -x + 1 # invert scale
         pwmX = self.grabArmRange[0] + (x*float(self.grabArmRange[1] - self.grabArmRange[0]))
         self.pwm.setPWM(self.grabPin, 0,int(pwmX))
+        #twist
+        num = self.__clamp(self.data[self.twistAddress],self.twistInRange[0],self.twistInRange[1])
+        x = float(num - self.twistInRange[0])/float(self.twistInRange[1] - self.twistInRange[0])
+        pwmX = self.twistArmRange[0] + (x*float(self.twistArmRange[1] - self.twistArmRange[0]))
+        self.pwm.setPWM(self.twistPin, 0,int(pwmX))
+        #wrist
+        #print self.data[self.wristAddress]
+        num = self.__clamp(self.data[self.wristAddress],self.wristInRange[0],self.wristInRange[1])
+        x = float(num - self.wristInRange[0])/float(self.wristInRange[1] - self.wristInRange[0])
+        x = -x + 1 # invert scale
+        pwmX = self.wristArmRange[0] + (x*float(self.wristArmRange[1] - self.wristArmRange[0]))
+        self.pwm.setPWM(self.wristPin, 0,int(pwmX))
+        print pwmX
+        #elbow
+        num = self.__clamp(self.data[self.elbowAddress],self.elbowInRange[0],self.elbowInRange[1])
+        x = float(num - self.elbowInRange[0])/float(self.elbowInRange[1] - self.elbowInRange[0])
+        pwmX = self.elbowArmRange[0] + (x*float(self.elbowArmRange[1] - self.elbowArmRange[0]))
+        self.pwm.setPWM(self.elbowPin, 0,int(pwmX))
         #print pwmX
+        #shoulder
+        num = self.__clamp(self.data[self.shoulderAddress],self.shoulderInRange[0],self.shoulderInRange[1])
+        x = float(num - self.shoulderInRange[0])/float(self.shoulderInRange[1] - self.shoulderInRange[0])
+        pwmX = self.shoulderArmRange[0] + (x*float(self.shoulderArmRange[1] - self.shoulderArmRange[0]))
+        self.pwm.setPWM(self.shoulderPin, 0,int(pwmX))
+        #base
+        num = self.__clamp(self.data[self.baseAddress],self.baseInRange[0],self.baseInRange[1])
+        x = float(num - self.baseInRange[0])/float(self.baseInRange[1] - self.baseInRange[0])
+        x = -x + 1 # invert scale
+        pwmX = self.baseArmRange[0] + (x*float(self.baseArmRange[1] - self.baseArmRange[0]))
+        self.pwm.setPWM(self.basePin, 0,int(pwmX))
         
 
 
