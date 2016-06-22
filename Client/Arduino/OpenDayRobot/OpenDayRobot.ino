@@ -30,13 +30,13 @@ void loop() {
 
     //output readings in parallel
     digitalWrite(validPin,0);
-    delay(10);
+    delay(2);
     outputData(val);
     outputAddress(AReadPins[count]);
-    delay(10);
+    delay(2);
     digitalWrite(validPin,1);
     
-    delay(80);
+    delay(15);
     //increase address counter
     count++;
     if(count >= AReadCount){
