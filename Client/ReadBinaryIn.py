@@ -27,8 +27,6 @@ while True:
             values[address] = number
             TCPSend.sendData(address,number)
         
-        if address == 7:
-            print values[address]
 
     
         
