@@ -25,7 +25,6 @@ while True:
             
         if pi.read(validPin):
             values[address] = number
-            print address
             TCPSend.sendData(address,number)
         
 
