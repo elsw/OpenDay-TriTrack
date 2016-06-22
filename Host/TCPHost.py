@@ -7,13 +7,19 @@ LED_PIN = 21
 
 TCP_IP = '10.0.0.1'
 TCP_PORT = 5005
-BUFFER_SIZE = 1024
+BUFFER_SIZE = 32#1024
+str_buffer = ""
 
 s = socket.socket(socket.AF_INET,socket.SOCK_STREAM)
 s.bind((TCP_IP,TCP_PORT))
 
 running = True
 connecting = True
+
+def processData(s):
+    p = s.find('N')
+    address = int(s[1:p])
+    number = int(s[p+1:len(s)-1])
 
 while running:
 
@@ -33,8 +39,35 @@ while running:
                 connecting = True
                 pi.write(LED_PIN,0)
                 break
-            print "received data",data
-            time.sleep(0.5)
+            
+            #print data
+            
+            if not data[0] == 'A':
+                #have only second half of a message
+                #use previously saved str_buffer
+                pos = data.find('E')
+                processData(str_buffer + data[0:pos+1])
+                #delete string
+                data = data[pos + 1:]
+
+            dataRemaining = True    
+            while dataRemaining:
+                pos = data.find('E')
+                if pos == -1:
+                    #no more data so leave
+                    dataRemaining = False
+                    #save the rest of the message, might be half of the next one
+                    str_buffer = data
+                else:
+                    #process string
+                    processData(data[0:pos+1])
+                    #delete string
+                    data = data[pos + 1:]
+                
+                    
+            
 
 print "connection closed"
 conn.close()
+
+
