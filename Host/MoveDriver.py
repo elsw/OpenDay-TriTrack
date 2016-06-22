@@ -34,7 +34,7 @@ class MoveDriver:
 
     def addData(self,address,number):
         self.data[address] = number
-        
+        print address
         if address == 7:
             self.endOfAddr = True
         elif address == 2:
@@ -50,7 +50,7 @@ class MoveDriver:
         x = -x + 1 # invert scale
         pwmX = self.grabArmRange[0] + (x*float(self.grabArmRange[1] - self.grabArmRange[0]))
         self.pwm.setPWM(self.grabPin, 0,int(pwmX))
-        print pwmX
+        #print pwmX
         
 
 
