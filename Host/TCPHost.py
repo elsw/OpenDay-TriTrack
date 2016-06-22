@@ -1,6 +1,7 @@
 import socket
 import time
 import pigpio
+from MoveDriver import MoveDriver
 
 pi = pigpio.pi('localhost')
 LED_PIN = 21
@@ -13,6 +14,8 @@ str_buffer = ""
 s = socket.socket(socket.AF_INET,socket.SOCK_STREAM)
 s.bind((TCP_IP,TCP_PORT))
 
+moveDriver = MoveDriver()
+
 running = True
 connecting = True
 
@@ -20,6 +23,8 @@ def processData(s):
     p = s.find('N')
     address = int(s[1:p])
     number = int(s[p+1:len(s)-1])
+    moveDriver.addData(address,number)
+    
 
 while running:
 
