@@ -9,7 +9,7 @@ class TCPSend:
         self.TCP_PORT = 5005
         self.BUFFERSIZE = 1024
 
-        self.LED_PIN = 21
+        self.LED_PIN = 3
 
         self.discNotice = False
         
