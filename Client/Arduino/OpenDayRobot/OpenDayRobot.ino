@@ -8,6 +8,7 @@ int outPins[] = {53,51,49,47,45,43,41,39,37,35};
 int addrPinCount = 4;
 int addrOutPins[] = {33,31,29,27};
 int validPin = 25;
+int readyPin = 23;
 
 
 void setup() {
@@ -21,12 +22,15 @@ void setup() {
     pinMode(addrOutPins[n], OUTPUT);
   }
   pinMode(validPin,OUTPUT);
+  pinMode(readyPin,INPUT);
+
+  digitalWrite(validPin,0);
 }
 
 void loop() {
   // put your main code here, to run repeatedly:
    val = analogRead(AReadPins[count]);    // read the input pin
-    Serial.println(val);             // debug value
+    //Serial.println(val);             // debug value
 
     //output readings in parallel
     digitalWrite(validPin,0);
@@ -34,15 +38,16 @@ void loop() {
     outputData(val);
     outputAddress(AReadPins[count]);
     delay(2);
-    digitalWrite(validPin,1);
+    digitalWrite(validPin,1);    
     
-    delay(15);
     //increase address counter
     count++;
     if(count >= AReadCount){
       count = 0;
     }
 
+    //wait for ready signal form pi
+    while(!digitalRead(readyPin));
 }
 
 //takes between 0 and 1024
