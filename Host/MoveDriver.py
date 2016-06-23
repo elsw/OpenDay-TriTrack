@@ -22,7 +22,7 @@ class MoveDriver:
         self.shoulderArmRange = [190,600]
         self.elbowPin = 5
         self.elbowAddress = 5
-        self.elbowInRange = [5,370]
+        self.elbowInRange = [5,300]
         self.elbowArmRange = [360,650]
         self.wristPin = 7
         self.wristAddress = 4
