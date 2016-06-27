@@ -12,6 +12,7 @@ BUFFER_SIZE = 32#1024
 str_buffer = ""
 
 s = socket.socket(socket.AF_INET,socket.SOCK_STREAM)
+#s.settimeout(5)
 s.bind((TCP_IP,TCP_PORT))
 
 moveDriver = MoveDriver()
@@ -31,17 +32,28 @@ while running:
     if connecting:
         print "listening"
         s.listen(1)
-
-        conn, addr = s.accept()
-        print "Connecttion from", addr
-        connecting = False
-        pi.write(LED_PIN,1)
+        try:
+            conn, addr = s.accept()
+            conn.settimeout(5)
+            print "Connecttion from", addr
+            connecting = False
+            pi.write(LED_PIN,1)
+        except:
+            pass
     else:
 
         while 1:
-            data = conn.recv(BUFFER_SIZE)
+            try:
+                data = conn.recv(BUFFER_SIZE)
+            except:
+                connecting = True
+                conn.close()
+                pi.write(LED_PIN,0)
+                break
+            
             if not data:
                 connecting = True
+                conn.close()
                 pi.write(LED_PIN,0)
                 break
             
