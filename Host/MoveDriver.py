@@ -1,5 +1,6 @@
 import pigpio
 import time
+import numpy
 from Servo_Driver.Adafruit_PWM_Servo_Driver import PWM
 
 class MoveDriver:
@@ -9,9 +10,13 @@ class MoveDriver:
         self.pwm.setPWMFreq(60)                        # Set frequency to 60 Hz
 
         self.endOfAddr = False
-        
-        self.data = [0,0,0,0,0,0,0,0]
 
+        self.addresses = 8
+        self.averageLength = 5
+        self.avCount = 0
+        self.data = numpy.zeros((self.addresses,self.averageLength))
+
+        
         self.basePin = 3
         self.baseAddress = 7
         self.baseInRange = [37,540]
@@ -46,53 +51,64 @@ class MoveDriver:
         
 
     def addData(self,address,number):
-        self.data[address] = number
+        self.data[address][self.avCount] = number
         if address == 7:
             self.endOfAddr = True
         elif address == 0:
             if self.endOfAddr == True:
                 self.endOfAddr = False
+                #increment average count
+                self.avCount = self.avCount + 1
+                if self.avCount >= self.averageLength:
+                    self.avCount = 0
                 #update servos after every full cycle
                 self.__updateServos()
 
+    def getData(self,address):
+        sum = 0.0
+        for i in range(0,self.averageLength):
+            sum = sum + self.data[address][i]
+        sum = sum / self.averageLength
+        return sum
+
     def __updateServos(self):
         #grabber
-        num = self.__clamp(self.data[self.grabAddress],self.grabInRange[0],self.grabInRange[1])
+        num = self.__clamp(self.getData(self.grabAddress),self.grabInRange[0],self.grabInRange[1])
         x = float(num - self.grabInRange[0])/float(self.grabInRange[1] - self.grabInRange[0])
         x = -x + 1 # invert scale
         pwmX = self.grabArmRange[0] + (x*float(self.grabArmRange[1] - self.grabArmRange[0]))
         self.pwm.setPWM(self.grabPin, 0,int(pwmX))
         #twist
-        num = self.__clamp(self.data[self.twistAddress],self.twistInRange[0],self.twistInRange[1])
+        num = self.__clamp(self.getData(self.twistAddress),self.twistInRange[0],self.twistInRange[1])
         x = float(num - self.twistInRange[0])/float(self.twistInRange[1] - self.twistInRange[0])
         pwmX = self.twistArmRange[0] + (x*float(self.twistArmRange[1] - self.twistArmRange[0]))
         self.pwm.setPWM(self.twistPin, 0,int(pwmX))
         #wrist
-        num = self.__clamp(self.data[self.wristAddress],self.wristInRange[0],self.wristInRange[1])
+        num = self.__clamp(self.getData(self.wristAddress),self.wristInRange[0],self.wristInRange[1])
         x = float(num - self.wristInRange[0])/float(self.wristInRange[1] - self.wristInRange[0])
         x = -x + 1 # invert scale
         pwmX = self.wristArmRange[0] + (x*float(self.wristArmRange[1] - self.wristArmRange[0]))
         self.pwm.setPWM(self.wristPin, 0,int(pwmX))
         #elbow
-        num = self.__clamp(self.data[self.elbowAddress],self.elbowInRange[0],self.elbowInRange[1])
+        num = self.__clamp(self.getData(self.elbowAddress),self.elbowInRange[0],self.elbowInRange[1])
         x = float(num - self.elbowInRange[0])/float(self.elbowInRange[1] - self.elbowInRange[0])
         pwmX = self.elbowArmRange[0] + (x*float(self.elbowArmRange[1] - self.elbowArmRange[0]))
         self.pwm.setPWM(self.elbowPin, 0,int(pwmX))
         #print pwmX
         #shoulder
-        num = self.__clamp(self.data[self.shoulderAddress],self.shoulderInRange[0],self.shoulderInRange[1])
+        num = self.__clamp(self.getData(self.shoulderAddress),self.shoulderInRange[0],self.shoulderInRange[1])
         x = float(num - self.shoulderInRange[0])/float(self.shoulderInRange[1] - self.shoulderInRange[0])
         pwmX = self.shoulderArmRange[0] + (x*float(self.shoulderArmRange[1] - self.shoulderArmRange[0]))
         self.pwm.setPWM(self.shoulderPin, 0,int(pwmX))
         #base
-        num = self.__clamp(self.data[self.baseAddress],self.baseInRange[0],self.baseInRange[1])
+        num = self.__clamp(self.getData(self.baseAddress),self.baseInRange[0],self.baseInRange[1])
         x = float(num - self.baseInRange[0])/float(self.baseInRange[1] - self.baseInRange[0])
         x = -x + 1 # invert scale
         pwmX = self.baseArmRange[0] + (x*float(self.baseArmRange[1] - self.baseArmRange[0]))
         self.pwm.setPWM(self.basePin, 0,int(pwmX))
         #wheels
-        x = float(self.data[self.xAddress] - self.wheelInRange[0])/float(self.wheelInRange[1] - self.wheelInRange[0])
-        y = float(self.data[self.yAddress] - self.wheelInRange[0])/float(self.wheelInRange[1] - self.wheelInRange[0])
+        x = float(self.getData(self.xAddress) - self.wheelInRange[0])/float(self.wheelInRange[1] - self.wheelInRange[0])
+        y = float(self.getData(self.yAddress) - self.wheelInRange[0])/float(self.wheelInRange[1] - self.wheelInRange[0])
         w1 = y + (x - 0.5)
         w2 = y - (x - 0.5)
         w1 = self.__clamp(w1,0,1)
