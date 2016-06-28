@@ -32,7 +32,7 @@ while True:
             
     values[address] = number
     TCPSend.sendData(address,number)
-
+    
     #set ready signal
     pi.write(readyPin,1)
 
