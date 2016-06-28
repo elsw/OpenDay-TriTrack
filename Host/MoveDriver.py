@@ -36,12 +36,20 @@ class MoveDriver:
         self.grabAddress = 2
         self.grabInRange = [813,1024]
         self.grabArmRange = [450,800]
+        self.wheel1Pin = 1
+        self.wheel2Pin = 2
+        self.xAddress = 0
+        self.yAddress = 1
+        self.wheelInRange = [0,1024]
+        self.wheelRange = [280,580]
+        self.wheelMid = 426
+        
 
     def addData(self,address,number):
         self.data[address] = number
         if address == 7:
             self.endOfAddr = True
-        elif address == 2:
+        elif address == 0:
             if self.endOfAddr == True:
                 self.endOfAddr = False
                 #update servos after every full cycle
@@ -82,7 +90,17 @@ class MoveDriver:
         x = -x + 1 # invert scale
         pwmX = self.baseArmRange[0] + (x*float(self.baseArmRange[1] - self.baseArmRange[0]))
         self.pwm.setPWM(self.basePin, 0,int(pwmX))
-        
+        #wheels
+        x = float(self.data[self.xAddress] - self.wheelInRange[0])/float(self.wheelInRange[1] - self.wheelInRange[0])
+        y = float(self.data[self.yAddress] - self.wheelInRange[0])/float(self.wheelInRange[1] - self.wheelInRange[0])
+        w1 = y + (x - 0.5)
+        w2 = y - (x - 0.5)
+        w1 = self.__clamp(w1,0,1)
+        w2 = self.__clamp(w2,0,1)
+        pwm1 = self.wheelRange[0] + (w1*float(self.wheelRange[1] - self.wheelRange[0]))
+        pwm2 = self.wheelRange[0] + (w2*float(self.wheelRange[1] - self.wheelRange[0]))
+        self.pwm.setPWM(self.wheel1Pin, 0,int(pwm1))
+        self.pwm.setPWM(self.wheel2Pin, 0,int(pwm2))
 
 
     def __clamp(self,x,min,max):
